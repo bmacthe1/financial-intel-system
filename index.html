@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Intelligence & Retrieval System</title>
+    <script src="https://tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <header class="border-b border-slate-800 bg-slate-950 p-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-emerald-400">⚡ FinancialIntel.io</h1>
+        <div id="credit-tracker" class="text-sm bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 text-emerald-300">
+            Available Queries: 3
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-4xl w-full mx-auto p-6 mt-8">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-extrabold mb-2">High-Demand Knowledge Engine</h2>
+            <p class="text-slate-400">Search premium ticker data instantly. Upgrades apply dynamically.</p>
+        </div>
+
+        <section class="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-xl mb-8">
+            <form id="search-form" class="flex gap-3">
+                <input type="text" id="symbol-input" placeholder="Enter market ticker symbol (e.g., AAPL, NVDA)..." required
+                    class="flex-grow bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:border-emerald-400 focus:outline-none">
+                <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-6 py-3 rounded-lg">
+                    Query Data
+                </button>
+            </form>
+        </section>
+
+        <!-- RESULTS CONTAINER -->
+        <section id="results-box" class="hidden bg-slate-950 rounded-xl border border-slate-800 p-6 relative">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-2">
+                <span class="text-xs text-emerald-400 font-bold uppercase tracking-wider">System Output</span>
+                <button onclick="alert('Link copied! Share this data layout to drive free traffic.')" class="text-xs text-slate-400 hover:text-white bg-slate-900 px-3 py-1 rounded border border-slate-700">🔗 Share Intelligence</button>
+            </div>
+            <pre id="json-render" class="text-emerald-300 font-mono text-sm overflow-x-auto p-3 bg-slate-900 rounded border border-slate-800"></pre>
+        </section>
+
+        <!-- MONETIZATION POPUP INTERCEPT -->
+        <section id="paywall-popup" class="hidden bg-gradient-to-br from-slate-950 to-slate-900 border-2 border-emerald-500/40 rounded-xl p-8 text-center shadow-2xl">
+            <div class="text-4xl mb-2">🔒</div>
+            <h3 class="text-xl font-bold mb-2">Free Search Credit Limit Met</h3>
+            <p class="text-slate-400 text-sm mb-6">Unlock your $9/month Micro-Pass or pick up a $2 Instant Top-Up pack via our Linktree profile to execute this database query.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="triggerPayment()" class="bg-emerald-400 hover:bg-emerald-500 text-slate-950 font-bold py-3 px-6 rounded-lg">Activate Micro-Pass ($9/mo)</button>
+                <button onclick="triggerPayment()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-6 rounded-lg border border-slate-600">Buy 10 Tokens ($2)</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-950 p-6 border-t border-slate-800 text-center text-xs text-slate-500">
+        <p>© 2026 Brandi McCall Platforms. All rights reserved.</p>
+        <div class="mt-2 space-x-4">
+            <a href="/terms.html" class="hover:underline">Terms of Service</a>
+            <a href="/privacy.html" class="hover:underline">Privacy Policy</a>
+            <a href="/faq.html" class="hover:underline">FAQ Help</a>
+        </div>
+    </footer>
+
+    <script>
+        const form = document.getElementById('search-form');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const symbol = document.getElementById('symbol-input').value.toUpperCase();
+            
+            try {
+                const res = await fetch('/api/retrieve-intelligence', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: 'user_organic_customer', querySymbol: symbol })
+                });
+                const data = await res.json();
+
+                if (data.triggerPaywall) {
+                    document.getElementById('results-box').classList.add('hidden');
+                    document.getElementById('paywall-popup').classList.remove('hidden');
+                    return;
+                }
+
+                document.getElementById('paywall-popup').classList.add('hidden');
+                document.getElementById('results-box').classList.remove('hidden');
+                document.getElementById('credit-tracker').innerText = `Available Queries: ${data.creditsRemaining}`;
+                document.getElementById('json-render').innerText = JSON.stringify(data.data, null, 2);
+            } catch (err) {
+                alert('Database processing line error.');
+            }
+        });
+
+        function triggerPayment() {
+            fetch('/api/stripe-webhooks', { method: 'POST' })
+            .then(() => {
+                alert('Payment verified safely! Your credits have been loaded remotely.');
+                location.reload();
+            });
+        }
+    </script>
+</body>
+</html>
